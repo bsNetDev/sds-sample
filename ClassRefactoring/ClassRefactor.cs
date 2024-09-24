@@ -14,7 +14,17 @@ namespace DeveloperSample.ClassRefactoring
 
     public class SwallowFactory
     {
-        public Swallow GetSwallow(SwallowType swallowType) => new Swallow(swallowType);
+        public SwallowAbstract GetSwallow(SwallowType swallowType)
+        {
+            switch (swallowType)
+            {
+                case SwallowType.African:
+                    return new AfricaSwallow(false);
+                case SwallowType.European:
+                    return new EuropeanSwallow(false);
+            }
+            return new AfricaSwallow(false);
+        }
     }
 
     public class Swallow
@@ -52,5 +62,49 @@ namespace DeveloperSample.ClassRefactoring
             }
             throw new InvalidOperationException();
         }
+    }
+
+    public abstract class SwallowAbstract
+    {
+        public virtual bool HasLoad { get; set; }
+
+        public virtual void ApplyLoad(bool hasLoad)
+        {
+            HasLoad = hasLoad;
+        }
+
+        public virtual double GetAirspeedVelocity() { return 0.0; }
+    }
+
+    public class AfricaSwallow : SwallowAbstract
+    {
+        public AfricaSwallow(bool hasLoad)
+        { 
+            base.HasLoad = hasLoad;
+        }
+
+        public override double GetAirspeedVelocity()
+        {
+            if (!HasLoad)
+                return 22;
+            else return 18;
+        }
+
+    }
+
+    public class EuropeanSwallow : SwallowAbstract
+    {
+        public EuropeanSwallow(bool hasLoad)
+        {
+            base.HasLoad = hasLoad;
+        }
+
+        public override double GetAirspeedVelocity()
+        {
+            if (!HasLoad)
+                return 20;
+            else return 16;
+        }
+
     }
 }

@@ -12,10 +12,10 @@ namespace DeveloperSample.Syncing
             var debug = new SyncDebug();
             var items = new List<string> { "one", "two" };
             var result = debug.InitializeList(items);
-            Assert.Equal(items.Count, result.Count);
+            Assert.Equal(items.Count, result.Result.Count);
         }
 
-        [Fact(Skip="Not implemented")]
+        [Fact]
         public void ItemsOnlyInitializeOnce()
         {
             var debug = new SyncDebug();

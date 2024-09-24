@@ -9,42 +9,28 @@ namespace DeveloperSample.Syncing
 {
     public class SyncDebug
     {
-        public List<string> InitializeList(IEnumerable<string> items)
+        public async Task<List<string>> InitializeList(IEnumerable<string> items)
         {
-            var bag = new ConcurrentBag<string>();
-            Parallel.ForEach(items, async i =>
+            var tasks = items.Select(async i =>
             {
-                var r = await Task.Run(() => i).ConfigureAwait(false);
-                bag.Add(r);
+                var result = await Task.Run(() => i).ConfigureAwait(false);
+                return result;
             });
-            var list = bag.ToList();
-            return list;
+
+            var results = await Task.WhenAll(tasks).ConfigureAwait(false);
+            return results.ToList();
         }
 
         public Dictionary<int, string> InitializeDictionary(Func<int, string> getItem)
         {
-            var itemsToInitialize = Enumerable.Range(0, 100).ToList();
-
             var concurrentDictionary = new ConcurrentDictionary<int, string>();
-            var threads = Enumerable.Range(0, 3)
-                .Select(i => new Thread(() => {
-                    foreach (var item in itemsToInitialize)
-                    {
-                        concurrentDictionary.AddOrUpdate(item, getItem, (_, s) => s);
-                    }
-                }))
-                .ToList();
-
-            foreach (var thread in threads)
+            Parallel.ForEach(Enumerable.Range(0, 100), item =>
             {
-                thread.Start();
-            }
-            foreach (var thread in threads)
-            {
-                thread.Join();
-            }
+                concurrentDictionary.AddOrUpdate(item, getItem, (_, s) => s);
+            });
 
             return concurrentDictionary.ToDictionary(kv => kv.Key, kv => kv.Value);
         }
+
     }
 }
